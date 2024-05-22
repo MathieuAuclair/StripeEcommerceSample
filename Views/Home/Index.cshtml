@@ -1,0 +1,37 @@
+﻿@model List<Stripe.Product>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">ECommerce with stripe</h1>
+    <p>Shop our online selection!</p>
+    @foreach (var product in Model)
+    {
+        <div class="border p-2 m-1 row">
+            <div class="col-4">
+                <div class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        @foreach (var image in product.Images)
+                        {
+                            <div class="carousel-item active">
+                                <img class="d-block" style="max-width: 150px;" src="@image" alt="@product.Name">
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-8">
+                <h3 class="text-left">@product.Name</h3>
+                <p>@product.Description</p>
+                @if(product.DefaultPrice != null)
+                {
+                    <p>@(string.Format("{0:C}", product.DefaultPrice.UnitAmount/100)) @product.DefaultPrice.Currency.ToUpper()</p>
+                    <a class="btn btn-primary" href="/Home/Purchase?productId=@product.Id">Purchase</a>
+                } else {
+                    <p class="text-danger">Currently unavailable</p>
+                }
+            </div>
+        </div>
+    }
+</div>
