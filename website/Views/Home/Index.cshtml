@@ -1,11 +1,21 @@
 ﻿@model List<Stripe.Product>
 @{
     ViewData["Title"] = "Home Page";
+
+    int.TryParse((ViewData["pageSize"] ?? string.Empty).ToString(), out var pageSize);
+    int.TryParse((ViewData["pageNumber"] ?? string.Empty).ToString(), out var pageNumber);
+
+    var last = ViewData["last"];
 }
 
 <div class="text-center">
     <h1 class="display-4">ECommerce with stripe</h1>
     <p>Shop our online selection!</p>
+    @if (!Model.Any())
+    {
+        <p class="text-muted">No more products...</p>
+    }
+
     @foreach (var product in Model)
     {
         <div class="border p-2 m-1 row">
@@ -22,16 +32,32 @@
                 </div>
             </div>
             <div class="col-8">
-                <h3 class="text-left">@product.Name</h3>
+                <h3>@product.Name</h3>
                 <p>@product.Description</p>
-                @if(product.DefaultPrice != null)
+                @if (product.DefaultPrice != null)
                 {
-                    <p>@(string.Format("{0:C}", product.DefaultPrice.UnitAmount/100)) @product.DefaultPrice.Currency.ToUpper()</p>
+                    <p>@(string.Format("{0:C}", product.DefaultPrice.UnitAmount / 100)) @product.DefaultPrice.Currency.ToUpper()
+                    </p>
                     <a class="btn btn-primary" href="/Home/Purchase?productId=@product.Id">Purchase</a>
-                } else {
+                }
+                else
+                {
                     <p class="text-danger">Currently unavailable</p>
                 }
             </div>
         </div>
     }
+
+    <nav class="mt-5 m-auto">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(pageNumber <= 0 ? "disabled" : string.Empty)">
+                <a class="page-link"
+                    href="/Home/Index?pageSize=@pageSize&pageNumber=@(pageNumber - 1)&last=@last">Previous</a>
+            </li>
+            <li class="page-item @(Model.Any() ? string.Empty : "disabled")">
+                <a class="page-link"
+                    href="/Home/Index?pageSize=@pageSize&pageNumber=@(pageNumber + 1)&last=@last">Next</a>
+            </li>
+        </ul>
+    </nav>
 </div>

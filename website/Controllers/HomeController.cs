@@ -14,11 +14,12 @@ public class HomeController : Controller
         _logger = logger;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(int pageSize = 10, int pageNumber = 0, string? last = null)
     {
         var service = new ProductService();
         var priceService = new PriceService();
-        var products = service.List()
+        var products = service.List(new ProductListOptions { Limit = pageSize, StartingAfter = last })
+            .Where(product => product.Active)
             .Select(product =>
             {
                 if (!string.IsNullOrWhiteSpace(product?.DefaultPriceId))
@@ -29,6 +30,14 @@ public class HomeController : Controller
                 return product;
             })
             .ToList();
+
+        ViewData["pageSize"] = pageSize;
+        ViewData["pageNumber"] = pageNumber;
+
+        if (products.Any())
+        {
+            ViewData["last"] = products.Last()?.Id;
+        }
 
         return View(products);
     }
